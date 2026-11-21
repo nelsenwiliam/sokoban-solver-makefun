@@ -1,41 +1,33 @@
 import fs from'fs'
 for(let d=0;++d<6;){
-let i=(process.env.MAKEFUN_INPUT_DIR||'/input')+'/i00'+d,o=(process.env.MAKEFUN_OUTPUT_DIR||'/output')+'/i00'+d,t=fs.readFileSync(i+'/level.txt')+'',w=t.indexOf('\n'),s=t.replace(/\n/g,''),a=[],B=[],G=[],p=0,x
-for(let j=0,c;c=s[j];j++){
-a[j]=c=='#'
-let k=(j%w>6)*2+(j/w>=8)
-c=='$'|c=='*'&&(B[k]??=[]).push(j)
-'.+*'.includes(c)&&(G[k]??=[]).push(j)
-c=='@'|c=='+'&&(p=j)
+let I=process.env.MAKEFUN_INPUT_DIR||'/input',O=process.env.MAKEFUN_OUTPUT_DIR||'/output',n='/i00'+d,i=I+n,o=O+n,t=fs.readFileSync(i+'/level.txt')+'',w=t.indexOf('\n')+1,B=[[],[],[],[]],G=[[],[],[],[]],p=t.indexOf('@'),D=[-w,w,-1,1],m='',k,z,x,j,c
+for(j=0,c;c=t[j];j++){
+k=(j%w>6)*2+(j>=8*w)
+c=='$'|c=='*'&&B[k].push(j)
+;/[.+*]/.test(c)&&G[k].push(j)
 }
-let D=[-w,w,-1,1],m=''
-const S=(A,G,B)=>{
-let Q=[[B,p,'']],V={[B+','+p]:1},k,z,t,u
-for(let s=0;s<Q.length;s++){
-let[b,q,n]=Q[s]
-if(b==G+''){p=q;return n}
+const S=k=>{
+let A=[...t].map(c=>c=='#'||c=='\n'),Q,V,u
+for(z in B)for(x of B[z])A[x]=z-k
+Q=[[B[k],p,'']];V={[B[k]+','+p]:1}
+for(let[b,q,n]of Q){
+if(b==G[k]+''){p=q;B[k]=G[k];return n}
 let R={[q]:''},F=[q]
-for(let y of F)for(let j=0;j<4;j++){
+for(let y of F)for(j=4;j--;){
 z=y+D[j]
 if(A[z])continue
 if(~b.indexOf(z)){
-t=z+D[j]
-if(A[t]|~b.indexOf(t))continue
-u=b.slice();u[u.indexOf(z)]=t;u.sort((a,b)=>a-b)
-if(V[k=u+','+z])continue
-V[k]=1
-Q.push([u,z,n+R[y]+'udlr'[j]])
-}else if(!(z in R)){R[z]=R[y]+'udlr'[j];F.push(z)}
+u=z+D[j]
+if(A[u]|~b.indexOf(u))continue
+let v=[...b];v[v.indexOf(z)]=u;v.sort((a,b)=>a-b)
+if(V[c=v+','+z])continue
+V[c]=1
+Q.push([v,z,n+R[y]+'udlr'[j]])
+}else if(!R[z]){R[z]=R[y]+'udlr'[j];F.push(z)}
 }
 }
 return''}
-for(let k in B){
-let A=a.slice()
-for(let z in B)for(x of B[z])A[x]=z!=k
-if(!(x=S(A,G[k],B[k])))break
-m+=x
-B[k]=G[k]
-}
+for(k in B)m+=S(k)
 fs.mkdirSync(o,{recursive:!0})
 fs.writeFileSync(o+'/solution.txt',m)
 }
